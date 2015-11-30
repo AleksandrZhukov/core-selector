@@ -66,7 +66,7 @@ Fired when an item element is tapped.
 <link rel="import" href="../core-selection/core-selection.html">
 
 <polymer-element name="core-selector"
-    attributes="selected multi valueattr selectedClass selectedProperty selectedAttribute selectedItem selectedModel selectedIndex notap excludedLocalNames target itemsSelector activateEvent">
+    attributes="selected multi valueattr selectedClass selectedProperty selectedAttribute selectedItem selectedModel selectedIndex notap excludedLocalNames excludedAttr target itemsSelector activateEvent">
 
   <template>
     <core-selection id="selection" multi="{{multi}}" on-core-select="{{selectionSelect}}"></core-selection>
@@ -286,17 +286,21 @@ Fired when an item element is tapped.
        * @type array
        */
       get items() {
+        return Array.prototype.filter.call(this.nodes, this.itemFilter);
+      },
+
+      get nodes() {
         if (!this.target) {
           return [];
         }
         var nodes = this.target !== this ? (this.itemsSelector ?
-            this.target.querySelectorAll(this.itemsSelector) :
-                this.target.children) : this.$.items.getDistributedNodes();
-        return Array.prototype.filter.call(nodes, this.itemFilter);
+          this.target.querySelectorAll(this.itemsSelector) :
+            this.target.children) : this.$.items.getDistributedNodes();
+        return nodes;
       },
 
       filterItem: function(node) {
-        return !this._excludedNames[node.localName];
+        return (!this._excludedNames[node.localName] && !node.hasAttribute(this.excludedAttr));
       },
 
       excludedLocalNamesChanged: function() {
